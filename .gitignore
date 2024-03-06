@@ -12,3 +12,6 @@ docs/
 
 # Dotenv file
 .env
+
+# Old version of contract
+src/FILMRestriction.sol
