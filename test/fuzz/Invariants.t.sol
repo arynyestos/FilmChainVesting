@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {Test, console} from "forge-std/Test.sol";
 import {StdInvariant} from "forge-std/StdInvariant.sol";
 import {FILMVesting} from "src/FILMVesting.sol";
-import {FILMChain} from "../../src/FILMChain.sol"; // For fork tests
+// import {FILMChain} from "../../src/FILMChain.sol"; // For fork tests
 import {MockFilmToken} from "../../test/mocks/MockFilmToken.sol";
 import {DeployFILMVesting} from "../../script/DeployFILMVesting.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
@@ -13,8 +13,8 @@ import {Handler} from "./Handler.t.sol";
 
 contract InvariantTest is StdInvariant, Test {
     FILMVesting filmVesting;
-    FILMChain filmToken; // For fork tests
-    // MockFilmToken filmToken;
+    // FILMChain filmToken; // For fork tests
+    MockFilmToken filmToken;
     DeployFILMVesting deployer;
     HelperConfig helperConfig;
     Handler handler;
@@ -31,14 +31,14 @@ contract InvariantTest is StdInvariant, Test {
         targetContract(address(handler));
 
         // For local tests
-        // filmToken = MockFilmToken(filmTokenAddress);
-        // vm.prank(FILM_TOKEN_OWNER);
-        // filmToken.mint(FILM_VESTING_OWNER, FILM_MAX_SUPPLY);
+        filmToken = MockFilmToken(filmTokenAddress);
+        vm.prank(FILM_TOKEN_OWNER);
+        filmToken.mint(FILM_VESTING_OWNER, FILM_MAX_SUPPLY);
 
         // For fork tests:
-        filmToken = FILMChain(filmTokenAddress);
-        vm.prank(REAL_FILM_OWNER);
-        filmToken.transfer(FILM_VESTING_OWNER, FILM_MAX_SUPPLY / 2);
+        // filmToken = FILMChain(filmTokenAddress);
+        // vm.prank(REAL_FILM_OWNER);
+        // filmToken.transfer(FILM_VESTING_OWNER, FILM_MAX_SUPPLY / 2);
 
         // bytes4[] memory selectors = new bytes4[](2);
         // selectors[0] = Handler.addVestingSchedule.selector;

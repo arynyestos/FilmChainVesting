@@ -26,8 +26,7 @@ contract FILMVesting is Ownable {
     //////////////////////////////////////////////////////////////*/
 
     IERC20 public filmToken;
-    // uint256 public constant VESTING_START_DATE = 1743458400; // Placeholder (01/04/2025), set this to the actual date
-    uint256 public VESTING_START_DATE = 1743458400; // NOT CONSTANT ONLY FOR TESTNET! Go to https://www.unixtimestamp.com/ to convert your desired date to UNIX timestamp
+    uint256 public immutable i_vestingStartDate;
     mapping(address => VestingSchedule) public vestingSchedules;
     address[] private s_beneficiaries; // Beneficiaries whose tokens have been locked and will be vested
     uint256 constant MIN_LOCK_AMOUNT = 4; // At least 4E-18 FILM tokens to release in 4 quarters
@@ -60,8 +59,9 @@ contract FILMVesting is Ownable {
     /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    constructor(IERC20 _filmToken) {
+    constructor(IERC20 _filmToken, uint256 vestingStartDate) {
         filmToken = _filmToken;
+        i_vestingStartDate = vestingStartDate;
     }
 
     /**
@@ -73,7 +73,7 @@ contract FILMVesting is Ownable {
     function addVestingSchedule(address beneficiary, uint256 amount, VestingType vestingType) public onlyOwner {
         if (beneficiary == address(0)) revert FILMVesting__ZeroAddressIsInvalidBeneficiary();
         if (amount < MIN_LOCK_AMOUNT) revert FILMVesting__CannotAddSoFewTokensToVestingSchedule();
-        if (block.timestamp >= VESTING_START_DATE) revert FILMVesting__VestingPeriodAlreadyStarted();
+        if (block.timestamp >= i_vestingStartDate) revert FILMVesting__VestingPeriodAlreadyStarted();
         if (filmToken.allowance(msg.sender, address(this)) < amount) {
             revert FILMVesting__NotEnoughFilmAllowanceForVestingContract();
         }
@@ -100,7 +100,7 @@ contract FILMVesting is Ownable {
     function increaseAllocation(address beneficiary, uint256 amount) external onlyOwner {
         if (beneficiary == address(0)) revert FILMVesting__ZeroAddressIsInvalidBeneficiary();
         if (amount < MIN_LOCK_AMOUNT) revert FILMVesting__CannotAddSoFewTokensToVestingSchedule();
-        if (block.timestamp >= VESTING_START_DATE) revert FILMVesting__VestingPeriodAlreadyStarted();
+        if (block.timestamp >= i_vestingStartDate) revert FILMVesting__VestingPeriodAlreadyStarted();
         if (filmToken.allowance(msg.sender, address(this)) < amount) {
             revert FILMVesting__NotEnoughFilmAllowanceForVestingContract();
         }
@@ -121,7 +121,7 @@ contract FILMVesting is Ownable {
      * @param beneficiary address that gets its tokens released
      */
     function release(address beneficiary) external {
-        if (block.timestamp < VESTING_START_DATE) revert FILMVesting__VestingPeriodNotStartedYet();
+        if (block.timestamp < i_vestingStartDate) revert FILMVesting__VestingPeriodNotStartedYet();
         VestingSchedule storage schedule = vestingSchedules[beneficiary];
         uint256 amountToRelease = calculateReleaseAmount(beneficiary);
 
@@ -139,12 +139,12 @@ contract FILMVesting is Ownable {
      * @param beneficiary address whose tokens due for release are calculated
      */
     function calculateReleaseAmount(address beneficiary) private view returns (uint256) {
-        if (block.timestamp < VESTING_START_DATE) return 0;
+        if (block.timestamp < i_vestingStartDate) return 0;
 
         VestingSchedule storage schedule = vestingSchedules[beneficiary];
         if (schedule.totalAmount == 0 || schedule.totalAmount == schedule.amountReleased) return 0;
 
-        uint256 timeElapsed = block.timestamp - VESTING_START_DATE;
+        uint256 timeElapsed = block.timestamp - i_vestingStartDate;
         uint256 totalQuartersElapsed = timeElapsed / (3 * 30 days);
         uint256 totalUnlockedAmount;
 
@@ -203,13 +203,5 @@ contract FILMVesting is Ownable {
 
     function getBeneficiaries() external view returns (address[] memory) {
         return s_beneficiaries;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                            ONLY FOR TESTNET
-    //////////////////////////////////////////////////////////////*/
-
-    function setVestingStartDate(uint256 timestamp) external onlyOwner {
-        VESTING_START_DATE = timestamp;
     }
 }

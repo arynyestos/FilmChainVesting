@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
 import {FILMVesting} from "../../src/FILMVesting.sol";
-import {FILMChain} from "../../src/FILMChain.sol"; // For fork tests
+// import {FILMChain} from "../../src/FILMChain.sol"; // For fork tests
 import {MockFilmToken} from "../../test/mocks/MockFilmToken.sol";
 import {DeployFILMVesting} from "../../script/DeployFILMVesting.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
@@ -14,15 +14,15 @@ contract FILMVestingTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     FILMVesting filmVesting;
-    FILMChain filmToken; // For fork tests
-    // MockFilmToken filmToken;
+    // FILMChain filmToken; // For fork tests
+    MockFilmToken filmToken;
     HelperConfig helperConfig;
     address FILM_TOKEN_OWNER = makeAddr("filmOwner");
     address REAL_FILM_OWNER = 0x25f82b92B5888374E06E106edC8a262932c7d55C;
     address FILM_VESTING_OWNER = makeAddr("vestingOwner");
     address BENEFICIARY = address(0x1);
     uint256 constant FILM_MAX_SUPPLY = 10_000_000_042 ether;
-    uint256 public constant VESTING_START_DATE = 1743458400; // Placeholder (01/04/2025), set this to the actual date
+    uint256 public VESTING_START_DATE; // Placeholder (01/04/2025), set this to the actual date
     uint256 constant FILM_AMOUNT_TO_LOCK = 1000 ether;
     uint256 constant BULK_ADD_NUM = 10;
 
@@ -55,14 +55,16 @@ contract FILMVestingTest is Test {
         (filmVesting, helperConfig) = deployFilmVesting.run();
         address filmTokenAddress = helperConfig.activeNetworkConfig();
         // For local tests
-        // filmToken = MockFilmToken(filmTokenAddress);
-        // vm.prank(FILM_TOKEN_OWNER);
-        // filmToken.mint(FILM_VESTING_OWNER, FILM_MAX_SUPPLY);
+        filmToken = MockFilmToken(filmTokenAddress);
+        vm.prank(FILM_TOKEN_OWNER);
+        filmToken.mint(FILM_VESTING_OWNER, FILM_MAX_SUPPLY);
 
         // For fork tests:
-        filmToken = FILMChain(filmTokenAddress);
-        vm.prank(REAL_FILM_OWNER);
-        filmToken.transfer(FILM_VESTING_OWNER, FILM_MAX_SUPPLY / 2);
+        // filmToken = FILMChain(filmTokenAddress);
+        // vm.prank(REAL_FILM_OWNER);
+        // filmToken.transfer(FILM_VESTING_OWNER, FILM_MAX_SUPPLY / 2);
+
+        VESTING_START_DATE = filmVesting.i_vestingStartDate();
     }
 
     /*//////////////////////////////////////////////////////////////

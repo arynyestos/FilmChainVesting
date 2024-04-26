@@ -4,28 +4,30 @@ pragma solidity ^0.8.19;
 
 import {Test, console} from "forge-std/Test.sol";
 import {FILMVesting} from "../../src/FILMVesting.sol";
-import {FILMChain} from "../../src/FILMChain.sol"; // For fork tests
+// import {FILMChain} from "../../src/FILMChain.sol"; // For fork tests
 import {MockFilmToken} from "../../test/mocks/MockFilmToken.sol";
 
 contract Handler is Test {
     FILMVesting public filmVesting;
-    FILMChain filmToken; // For fork tests
-    // MockFilmToken filmToken;
-    // MockMocProxy public mockMocProxy;
+    // FILMChain filmToken; // For fork tests
+    MockFilmToken filmToken;
     uint256 constant FILM_MAX_SUPPLY = 10_000_000_042 ether;
     uint256 constant FILM_MIN_LOCK_AMOUNT = 4;
     uint256 constant FILM_MAX_LOCK_AMOUNT = FILM_MAX_SUPPLY / 1000; // for the sake of testing
-    uint256 constant VESTING_START_DATE = 1743458400; // Placeholder (01/04/2025), set this to the actual date
     address FILM_VESTING_OWNER = makeAddr("vestingOwner");
     address[] bulkBeneficiaries;
     uint256[] bulkAmounts;
 
-    // constructor(FILMVesting _filmVesting, MockFilmToken _filmToken) {
-    constructor(FILMVesting _filmVesting, FILMChain _filmToken) {
-        // For fork tests
+    constructor(FILMVesting _filmVesting, MockFilmToken _filmToken) {
         filmVesting = _filmVesting;
         filmToken = _filmToken;
     }
+
+    // For fork tests
+    // constructor(FILMVesting _filmVesting, FILMChain _filmToken) {
+    //     filmVesting = _filmVesting;
+    //     filmToken = _filmToken;
+    // }
 
     // function addVestingSchedule(address beneficiary, uint256 amount, FILMVesting.VestingType vestingType) public {
     function addVestingSchedule(address beneficiary, uint256 amount, uint256 vestingTypeIndex) public {

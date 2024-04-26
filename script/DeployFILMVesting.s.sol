@@ -12,11 +12,11 @@ contract DeployFILMVesting is Script {
     address filmVestingowner = makeAddr("vestingOwner");
 
     function run() external returns (FILMVesting, HelperConfig) {
-        HelperConfig helperConfig = new HelperConfig(); // This comes with our mocks!
+        HelperConfig helperConfig = new HelperConfig();
         address filmToken = helperConfig.activeNetworkConfig();
 
         vm.startBroadcast();
-        FILMVesting filmVesting = new FILMVesting(IERC20(filmToken));
+        FILMVesting filmVesting = new FILMVesting(IERC20(filmToken), 1745670053);
         filmVesting.transferOwnership(filmVestingowner); // Only for tests!!!
         vm.stopBroadcast();
         return (filmVesting, helperConfig);
