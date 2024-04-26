@@ -21,6 +21,7 @@ The `FILMVesting` contract is designed to manage the vesting of FILM tokens for 
 
 ### Functions
 - `addVestingSchedule`: Adds a new vesting schedule for a beneficiary.
+- `addBulkVestingSchedules`: Adds new vesting schedules for several beneficiaries.
 - `increaseAllocation`: Increases the token amount for an existing beneficiary's vesting schedule.
 - `release`: Releases the vested tokens to the beneficiary if the vesting period conditions are met.
 - `getVestingSchedule`: Returns the vesting schedule details for a beneficiary.
@@ -49,7 +50,7 @@ The `FILMVesting` contract is designed to manage the vesting of FILM tokens for 
 
 Bear in mind that contracts deployed on Remix will need to be verified afterwards. 
 
-### Deploying and verifying with a Script
+### Deploying and verifying with Foundry
 - If using a script like `DeployFILMVesting.sol`, ensure you adjust parameters for the token address and the vesting start date.
 - Example script usage (adjust paths and parameters as necessary):
   ```shell
